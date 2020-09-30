@@ -44,7 +44,7 @@ class ArrayProcessorWithForLoopsTest {
 
     @Test
     void someMatch_whenNoElementsMatchPredicate_returnFalse() {
-        final int[] falseInputArray = {5512, 418, 930, 999};
+        final int[] falseInputArray = {5512, 418, 930, 998};
         final IntPredicate numberIsOdd = (k) -> k % 2 == 1;
         assertThat(testProcessor.someMatch(falseInputArray, numberIsOdd)).isFalse();
     }
