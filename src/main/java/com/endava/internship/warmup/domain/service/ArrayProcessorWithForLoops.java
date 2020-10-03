@@ -12,15 +12,14 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
      */
     @Override
     public boolean noneMatch(final int[] input) {
-        int numberOfAppearance = 0;
 
         for (int num : input) {
             if (num % 10 == 0) {
-                numberOfAppearance++;
+                return false;
             }
         }
 
-        return numberOfAppearance == 0;
+        return true;
     }
 
     /**
@@ -52,15 +51,14 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
     public boolean allMatch(final String[] input,
                             ToIntFunction<String> function,
                             IntPredicate predicate) {
-        int nrOfMatches = 0;
         for (String stringValue : input) {
             int intValue = function.applyAsInt(stringValue);
-            if (predicate.test(intValue)) {
-                nrOfMatches++;
+            if (!predicate.test(intValue)) {
+                return false;
             }
         }
 
-        return nrOfMatches == input.length;
+        return true;
     }
 
     /**
@@ -80,7 +78,9 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
         int[] newArray = new int[newArrayLength];
         int index = 0;
         for (int i = startInclusive; i <= newArrayLength; i++) {
-            if (i >= startInclusive && i < endExclusive) newArray[index++] = input[i];
+            if (i >= startInclusive && i < endExclusive) {
+                newArray[index++] = input[i];
+            }
 
         }
         return newArray;
@@ -96,8 +96,11 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
     public int[] replace(final int[] input) {
         int[] newArray = new int[input.length];
         for (int i = 0; i < input.length; i++) {
-            if (i % 2 == 0) newArray[i] = input[i] * 2;
-            else newArray[i] = -input[i];
+            if (i % 2 == 0) {
+                newArray[i] = input[i] * 2;
+            } else {
+                newArray[i] = -input[i];
+            }
         }
         return newArray;
     }
@@ -109,22 +112,21 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
      */
     @Override
     public int findSecondMax(final int[] input) {
-        int i, maxValue, secondMaxValue;
-        maxValue = secondMaxValue = Integer.MIN_VALUE;
+        int[] sortedArray = sortArray(input);
+        int maxValue = sortedArray[sortedArray.length - 1];
+        int secondMaxValue = 0;
         if (input.length < 2) {
             System.out.println("Invalid Input");
         }
-
-        for (i = 0; i < input.length; i++) {
-            maxValue = Math.max(maxValue, input[i]);
-        }
-
-        for (i = 0; i < input.length; i++) {
-            if (input[i] != maxValue) {
-                secondMaxValue = Math.max(secondMaxValue, input[i]);
+        for (int i = 0; i < sortedArray.length; i++) {
+            if (sortedArray[i] == maxValue) {
+                if (i == 0) {
+                    System.out.println("All the elements are equal! Max value = Second max value = ");
+                    return sortedArray[i];
+                } else {
+                    return sortedArray[i - 1];
+                }
             }
-
-            if (secondMaxValue == Integer.MIN_VALUE) System.out.println("There is no second largest value.");
         }
         return secondMaxValue;
     }
@@ -138,20 +140,21 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
      */
     @Override
     public int[] rearrange(final int[] input) {
-        int i, j;
-        j = 0;
-        for (i = 0; i < input.length; i++) {
+        int[] newArray = new int[input.length];
+        int index = 0;
+        for (int i = input.length - 1; i >= 0; i--) {
             if (input[i] < 0) {
-                if (i != j) {
-                    int temp = input[i];
-                    input[i] = input[j];
-                    input[j] = temp;
-                }
-                j++;
+                newArray[index++] = input[i];
             }
         }
-        return input;
+        for (int i = input.length - 1; i >= 0; i--) {
+            if (input[i] >= 0) {
+                newArray[index++] = input[i];
+            }
+        }
+        return newArray;
     }
+
 
     /**
      * Remove (filter) all values which are smaller than (input max element - 10)
@@ -163,7 +166,9 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
     public int[] filter(final int[] input) {
         int count = 0;
         for (int number : input) {
-            if (number < 0) count++;
+            if (number < 0) {
+                count++;
+            }
         }
         if (count == 0) {
             return input;
@@ -196,10 +201,17 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
 
         int newArrayLength = input.length + values.length;
         int[] newArray = new int[newArrayLength];
+
         for (int i = 0; i < newArrayLength; i++) {
-            if (i < startInclusive) newArray[i] = input[i];
-            if (i >= startInclusive && i < startInclusive + values.length) newArray[i] = values[j++];
-            if (i >= startInclusive + values.length) newArray[i] = input[startInclusive++];
+            if (i < startInclusive) {
+                newArray[i] = input[i];
+            }
+            if (i >= startInclusive && i < startInclusive + values.length) {
+                newArray[i] = values[j++];
+            }
+            if (i >= startInclusive + values.length) {
+                newArray[i] = input[startInclusive++];
+            }
 
         }
         return newArray;
@@ -215,31 +227,29 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
      */
     @Override
     public int[] mergeSortedArrays(int[] input, int[] input2) throws IllegalArgumentException {
-        int resultLength = input.length + input2.length;
-        int[] firstArray = sortArray(input);
-        int[] secondArray = sortArray(input2);
-        int[] result = new int[resultLength];
+        int mergedArrayLength = input.length + input2.length;
+        int[] mergedArray = new int[mergedArrayLength];
         int position = 0;
 
-        for (int element : firstArray) {
-            result[position] = element;
+        for (int element : input) {
+            mergedArray[position] = element;
             position++;
         }
 
-        for (int element : secondArray) {
-            result[position] = element;
+        for (int element : input2) {
+            mergedArray[position] = element;
             position++;
         }
-        result = sortArray(result);
-        for (int i = 0; i < result.length; i++) {
-            System.out.print(result[i] + " ");
+        int[] sortedArray = sortArray(mergedArray);
+        for (int j : mergedArray) {
+            System.out.print(j + " ");
         }
-        return result;
+        return sortedArray;
     }
 
 
     public static int[] sortArray(int[] arr) {
-        int temp = 0;
+        int temp;
         for (int i = 0; i < arr.length; i++) {
             for (int j = i + 1; j < arr.length; j++) {
                 if (arr[i] > arr[j]) {
@@ -267,9 +277,15 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
     public void validateForMatrixMultiplication(int[][] leftMatrix, int[][] rightMatrix) throws
             NullPointerException, IllegalArgumentException {
 
-        if(leftMatrix.length == 0 || rightMatrix.length == 0){throw new IllegalArgumentException("The matrix must not be null");}
-        if(leftMatrix[0].length == 0 || rightMatrix[0].length == 0){ throw new NullPointerException("Rows must not be null");}
-        if(leftMatrix.length != rightMatrix[0].length){throw new IllegalArgumentException("The number of columns of the 1st matrix is NOT equal the number of rows of the 2nd matrix.");}
+        if (leftMatrix.length == 0 || rightMatrix.length == 0) {
+            throw new IllegalArgumentException("The matrix must not be null");
+        }
+        if (leftMatrix[0].length == 0 || rightMatrix[0].length == 0) {
+            throw new NullPointerException("Rows must not be null");
+        }
+        if (leftMatrix.length != rightMatrix[0].length) {
+            throw new IllegalArgumentException("The number of columns of the 1st matrix is NOT equal the number of rows of the 2nd matrix.");
+        }
     }
 
     /**
@@ -289,12 +305,12 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
         nrColumns1 = leftMatrix[0].length;
         nrRows2 = rightMatrix.length;
         nrColumns2 = rightMatrix[0].length;
-        int multiply[][] = new int[nrRows1][nrColumns2];
+        int[][] multiply = new int[nrRows1][nrColumns2];
 
 
-        if (nrColumns1 != nrRows2)
+        if (nrColumns1 != nrRows2) {
             System.out.println("The matrices can't be multiplied with each other.");
-        else {
+        } else {
             for (i = 0; i < nrRows1; i++) {
                 for (j = 0; j < nrColumns2; j++) {
                     for (k = 0; k < nrColumns1; k++)
@@ -334,13 +350,13 @@ public class ArrayProcessorWithForLoops implements ArrayProcessor {
     }
 
     public static int countDistinct(int[] arr) {
-        arr = sortArray(arr);
+        int[] sortedArr = sortArray(arr);
         int res = 0;
-        for (int i = 0; i < arr.length; i++) {
+        for (int i = 0; i < sortedArr.length; i++) {
             // Move the index ahead while
             // there are duplicates
-            while (i < arr.length - 1 &&
-                    arr[i] == arr[i + 1]) {
+            while (i < sortedArr.length - 1 &&
+                    sortedArr[i] == sortedArr[i + 1]) {
                 i++;
             }
             res++;
